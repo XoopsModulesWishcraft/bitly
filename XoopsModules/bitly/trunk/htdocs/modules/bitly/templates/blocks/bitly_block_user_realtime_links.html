@@ -1,0 +1,8 @@
+<{if $block.links}>
+<{foreach item=link from=$block.links}>
+<div>
+	<div style='font-size:1.45em; text-align:center; width:75px; float:left; clear:none;'><{$link.position}></div>
+	<div style='font-size:1.15em; text-align:justify; float:right; clear:none;'><a href="<{$link.url}>"><{$link.title}></a></div>
+</div>
+<{/foreach}>
+<{/if}>
