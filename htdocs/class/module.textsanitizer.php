@@ -317,7 +317,7 @@ class MyTextSanitizer
         $config_handler = xoops_gethandler('config');
         if (!is_object($GLOBALS['bitlyModule']))
         	$GLOBALS['bitlyModule'] = $module_handler->getByDirname('bitly');
-        if (!is_array($GLOBALS['bitlyModuleConfig']))
+        if (!is_array($GLOBALS['bitlyModuleConfig'])&&is_object($GLOBALS['bitlyModule']))
         	$GLOBALS['bitlyModuleConfig'] = $config_handler->getConfigList($GLOBALS['bitlyModule']->getVar('mid'));
 
         if (is_object($GLOBALS['bitlyModule'])) {
