@@ -424,6 +424,52 @@ class MyTextSanitizer
         $patterns[] = "/\[right](.*)\[\/right\]/sU";
         $replacements[] = '<div style="text-align: right;">\\1</div>';
 
+        /**
+         * Shorten the URL Passing through the text sanitizer and replaces them with a bit.ly shorten domains. 
+         * You must have the 'sanitizer' option enabled to use this feature of bit.ly module
+         */
+        $module_handler = xoops_gethandler('module');
+        $config_handler = xoops_gethandler('config');
+        if (!is_object($GLOBALS['bitlyModule']))
+        	$GLOBALS['bitlyModule'] = $module_handler->getByDirname('bitly');
+        if (!is_array($GLOBALS['bitlyModuleConfig'])&&is_object($GLOBALS['bitlyModule']))
+        	$GLOBALS['bitlyModuleConfig'] = $config_handler->getConfigList($GLOBALS['bitlyModule']->getVar('mid'));
+
+        if (is_object($GLOBALS['bitlyModule'])) {
+	        if (	$GLOBALS['bitlyModuleConfig']['sanitizer']==true && 
+	        		!empty($GLOBALS['bitlyModuleConfig']['client_id']) &&
+	        		!empty($GLOBALS['bitlyModuleConfig']['client_secret'])) {
+	        			
+		        $allempty = false;
+		        $offset = array();
+		        $url = array();
+		        while ($allempty==false) {
+		        	$i=0;
+			        foreach($patterns as $key => $pattern) {
+			        	preg_match($pattern, $text, $matches, PREG_OFFSET_CAPTURE, (isset($offset[$key])?$offset[$key]:0));
+			        	if (isset($matches[0][0])&&!empty($matches[0][0])) {
+			        		$offset[$key] = $matches[0][1]+strlen($matches[0][0]);
+			        		$url[] = substr($matches[0][0],1);
+			        		$i--;
+			        	} else {
+			        		$i++;
+			        	}
+			        	if ($i==count($patterns))
+			        		$allempty=true;
+			        }
+		        }
+		        if (count($url)>0) {
+					$shorten_handler = xoops_getmodulehandler('shorten', 'bitly');
+			        foreach($url as $uri) {
+			        	$text = str_replace($uri, $shorten_handler->shortenURL($uri), $text);
+			        }
+		        }        	
+	        }
+        }
+        /**
+         * End of Shorten the URL with a bit.ly shorten domains. 
+         */
+   
         $this->text = $text;
         $this->patterns = $patterns;
         $this->replacements = $replacements;
